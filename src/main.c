@@ -1,13 +1,10 @@
 #include <stdio.h>
 #include "lexer.h"
 
-#include "string.h"
-#include <stdlib.h>
-
 int
 main (void)
 {
-  struct lexer lexer = lexer_create ("(x=51)", "<>");
+  struct lexer lexer = lexer_create (" ( x = 51 ) ", "<>");
   struct token token;
 
   while ((token = lexer_next (&lexer)).type != TOKEN_NOTHING)

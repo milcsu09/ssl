@@ -231,6 +231,15 @@ lexer_next (struct lexer *lexer)
   while (isspace (*lexer->current))
     lexer_advance (lexer);
 
+  while (*lexer->current == '#')
+    {
+      while (*lexer->current && *lexer->current != '\n')
+        lexer_advance (lexer);
+
+      while (isspace (*lexer->current))
+        lexer_advance (lexer);
+    }
+
   char c = *lexer->current;
 
   switch (c)
