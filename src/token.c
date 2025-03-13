@@ -1,10 +1,9 @@
-#include "token.h"
 #include "string.h"
+#include "token.h"
 #include <stdlib.h>
 
-
-static const char *const TOKEN_TYPES[] = {
-  "EOF",
+static const char *const TOKEN_TYPE_STRING[] = {
+  "nothing",
   ";",
   "identifier",
   "string",
@@ -18,17 +17,14 @@ static const char *const TOKEN_TYPES[] = {
   "}",
   "=",
   "->",
-  "|",
-  "?",
+  ",",
 };
-
 
 const char *
 token_type_string (enum token_type type)
 {
-  return TOKEN_TYPES[type];
+  return TOKEN_TYPE_STRING[type];
 }
-
 
 struct token
 token_create (enum token_type type, struct location location)
@@ -41,18 +37,17 @@ token_create (enum token_type type, struct location location)
   return token;
 }
 
-
 struct token
 token_create_i (long i, enum token_type type, struct location location)
 {
   struct token token;
 
   token = token_create (type, location);
-  token.entry.i = i;
+
+  token.value.i = i;
 
   return token;
 }
-
 
 struct token
 token_create_f (double f, enum token_type type, struct location location)
@@ -60,11 +55,11 @@ token_create_f (double f, enum token_type type, struct location location)
   struct token token;
 
   token = token_create (type, location);
-  token.entry.f = f;
+
+  token.value.f = f;
 
   return token;
 }
-
 
 struct token
 token_create_s (char *s, enum token_type type, struct location location)
@@ -72,11 +67,11 @@ token_create_s (char *s, enum token_type type, struct location location)
   struct token token;
 
   token = token_create (type, location);
-  token.entry.s = s;
+
+  token.value.s = s;
 
   return token;
 }
-
 
 struct token
 token_copy (struct token token)
@@ -86,19 +81,17 @@ token_copy (struct token token)
   switch (token.type)
     {
     case TOKEN_IDENTIFIER:
-
+      copy.value.s = string_copy (token.value.s);
+      break;
     case TOKEN_STRING:
-      copy.entry.s = string_copy (token.entry.s);
+      copy.value.s = string_copy (token.value.s);
       break;
-
     case TOKEN_INTEGER:
-      copy.entry.i = token.entry.i;
+      copy.value.i = token.value.i;
       break;
-
     case TOKEN_FLOAT:
-      copy.entry.f = token.entry.f;
+      copy.value.i = token.value.i;
       break;
-
     default:
       break;
     }
@@ -109,18 +102,17 @@ token_copy (struct token token)
   return copy;
 }
 
-
 void
 token_destroy (struct token token)
 {
   switch (token.type)
     {
     case TOKEN_IDENTIFIER:
-
-    case TOKEN_STRING:
-      free (token.entry.s);
+      free (token.value.s);
       break;
-
+    case TOKEN_STRING:
+      free (token.value.s);
+      break;
     default:
       break;
     }

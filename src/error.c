@@ -1,22 +1,22 @@
 #include "error.h"
-#include <stdarg.h>
 
-
-struct error
-error_create (struct location location, const char *format, ...)
+void
+location_advance (struct location *location, char c)
 {
-  struct error error;
-
-  va_list va;
-  va_start (va, format);
-
-  vsnprintf (error.message, sizeof error.message, format, va);
-
-  va_end (va);
-
-  error.location = location;
-
-  return error;
+  location->column++;
+  if (c == '\n')
+    location->column = 1, location->line++;
 }
 
+static const char *const ERROR_TYPE_STRING[] = {
+  "NOTHING",
+  "SYNTAX",
+  "RUNTIME",
+};
+
+const char *
+error_type_string (enum error_type type)
+{
+  return ERROR_TYPE_STRING[type];
+}
 

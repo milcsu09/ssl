@@ -1,0 +1,284 @@
+#include "error.h"
+#include "string.h"
+#include "token.h"
+#include "lexer.h"
+#include <ctype.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+static inline void
+lexer_error (struct lexer *lexer, struct location location, const char *fmt,
+             ...)
+{
+  va_list va;
+
+  va_start (va, fmt);
+  vsnprintf (lexer->error.message, sizeof (lexer->error.message), fmt, va);
+  va_end (va);
+
+  lexer->error.type = ERROR_SYNTAX;
+  lexer->error.location = location;
+}
+
+struct lexer
+lexer_create (char *const source, const char *const context)
+{
+  struct lexer lexer;
+
+  lexer.current = source;
+
+  lexer.location.context = context;
+  lexer.location.line = 1;
+  lexer.location.column = 1;
+
+  lexer.error.type = ERROR_NOTHING;
+
+  return lexer;
+}
+
+static void
+lexer_advance (struct lexer *lexer)
+{
+  char c = *lexer->current;
+
+  if (c == '\0')
+    return;
+
+  lexer->current++;
+  location_advance (&lexer->location, c);
+}
+
+static void
+lexer_advance_n (struct lexer *lexer, size_t n)
+{
+  while (n--)
+    lexer_advance (lexer);
+}
+
+static struct token
+lexer_advance_token (struct lexer *lexer, size_t type)
+{
+  struct token token;
+
+  token = token_create (type, lexer->location);
+
+  lexer_advance (lexer);
+
+  return token;
+}
+
+static struct token
+lexer_advance_n_token (struct lexer *lexer, size_t n, size_t type)
+{
+  struct token token;
+
+  token = token_create (type, lexer->location);
+
+  lexer_advance_n (lexer, n);
+
+  return token;
+}
+
+static int
+lexer_match (struct lexer *lexer, const char *s)
+{
+  size_t length = strlen (s);
+  return strncmp (lexer->current, s, length) == 0;
+}
+
+static struct token
+lexer_lex_string (struct lexer *lexer)
+{
+  struct location location = lexer->location;
+  const char *start = lexer->current;
+
+  lexer_advance (lexer);
+
+  while (strchr ("\"\n", *lexer->current) == NULL)
+    {
+      if (*lexer->current == '\\')
+        lexer_advance (lexer);
+      lexer_advance (lexer);
+    }
+
+  if (*lexer->current != '"')
+    {
+      lexer_error (lexer, location, "unterminated string-literal");
+      return token_create (TOKEN_NOTHING, lexer->location);
+    }
+
+  lexer_advance (lexer);
+
+  char *s = string_copy_until (start + 1, lexer->current - 1);
+
+  string_escape (s);
+
+  return token_create_s (s, TOKEN_STRING, location);
+}
+
+static int
+lexer_is_digit_base (char c, int base)
+{
+  switch (base)
+    {
+    case 2:
+      return c == '0' || c == '1';
+    case 8:
+      return c >= '0' && c <= '7';
+    case 16:
+      return isxdigit (c);
+    }
+
+  return 0;
+}
+
+static struct token
+lexer_lex_number_base (struct lexer *lexer, int base)
+{
+  struct location location = lexer->location;
+  const char *start = lexer->current;
+
+  while (lexer_is_digit_base (*lexer->current, base))
+    lexer_advance (lexer);
+
+  long i = strtol (start, NULL, base);
+
+  return token_create_i (i, TOKEN_INTEGER, location);
+}
+
+static struct token
+lexer_lex_number (struct lexer *lexer)
+{
+  if (*lexer->current == '0')
+    switch (*(lexer->current + 1))
+      {
+      case 'b':
+      case 'B':
+        lexer_advance_n (lexer, 2);
+        return lexer_lex_number_base (lexer, 2);
+      case 'o':
+      case 'O':
+        lexer_advance_n (lexer, 2);
+        return lexer_lex_number_base (lexer, 8);
+      case 'x':
+      case 'X':
+        lexer_advance_n (lexer, 2);
+        return lexer_lex_number_base (lexer, 16);
+      }
+
+  struct location location = lexer->location;
+  const char *start = lexer->current;
+
+  int is_float = 0;
+
+  while (isdigit (*lexer->current))
+    lexer_advance (lexer);
+
+  if (*lexer->current == '.')
+    {
+      is_float = 1;
+      lexer_advance (lexer);
+
+      while (isdigit (*lexer->current))
+        lexer_advance (lexer);
+    }
+
+  if (*lexer->current == 'e' || *lexer->current == 'E')
+    {
+      is_float = 1;
+      lexer_advance (lexer);
+
+      if (*lexer->current == '+' || *lexer->current == '-')
+        lexer_advance (lexer);
+
+      while (isdigit (*lexer->current))
+        lexer_advance (lexer);
+    }
+
+  if (is_float)
+    {
+      double f = strtof (start, NULL);
+
+      return token_create_f (f, TOKEN_FLOAT, location);
+    }
+  else
+    {
+      long i = strtol (start, NULL, 10);
+
+      return token_create_i (i, TOKEN_INTEGER, location);
+    }
+}
+
+static struct token
+lexer_lex_identifier (struct lexer *lexer)
+{
+  struct location location = lexer->location;
+  const char *start = lexer->current;
+
+  while (isalnum (*lexer->current) || *lexer->current == '_')
+    lexer_advance (lexer);
+
+  char *s = string_copy_until (start, lexer->current);
+
+  return token_create_s (s, TOKEN_IDENTIFIER, location);
+}
+
+struct token
+lexer_next (struct lexer *lexer)
+{
+  while (isspace (*lexer->current))
+    lexer_advance (lexer);
+
+  char c = *lexer->current;
+
+  switch (c)
+    {
+    case ';':
+      return lexer_advance_token (lexer, TOKEN_SEMICOLON);
+    case '(':
+      return lexer_advance_token (lexer, TOKEN_LPAREN);
+    case ')':
+      return lexer_advance_token (lexer, TOKEN_RPAREN);
+    case '[':
+      return lexer_advance_token (lexer, TOKEN_LBRACKET);
+    case ']':
+      return lexer_advance_token (lexer, TOKEN_RBRACKET);
+    case '{':
+      return lexer_advance_token (lexer, TOKEN_LBRACE);
+    case '}':
+      return lexer_advance_token (lexer, TOKEN_RBRACE);
+    case '=':
+      return lexer_advance_token (lexer, TOKEN_EQUAL);
+    case ',':
+      return lexer_advance_token (lexer, TOKEN_COMMA);
+    case '-':
+      if (lexer_match (lexer, "->"))
+        return lexer_advance_n_token (lexer, 2, TOKEN_ARROW);
+      break;
+    case '\0':
+      return token_create (TOKEN_NOTHING, lexer->location);
+    }
+
+  if (c == '"')
+    return lexer_lex_string (lexer);
+
+  if (isdigit (c))
+    return lexer_lex_number (lexer);
+
+  if (isalpha (c) || c == '_')
+    return lexer_lex_identifier (lexer);
+
+  lexer_error (lexer, lexer->location, "unexpected character %c", c);
+
+  return token_create (TOKEN_NOTHING, lexer->location);
+}
+
+struct token
+lexer_peek (struct lexer *lexer)
+{
+  struct lexer copy = *lexer;
+  return lexer_next (&copy);
+}
+
