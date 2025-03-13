@@ -1,6 +1,4 @@
-#include "error.h"
 #include "string.h"
-#include "token.h"
 #include "lexer.h"
 #include <ctype.h>
 #include <stdarg.h>

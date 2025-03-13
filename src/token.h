@@ -3,8 +3,6 @@
 
 #include "error.h"
 
-#define TOKEN_EMPTY token_create (0, 0)
-
 union token_entry
 {
   long i;
