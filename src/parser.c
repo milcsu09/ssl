@@ -137,6 +137,8 @@ parser_parse_atom (struct parser *parser, enum ast_type type,
   return result;
 }
 
+static struct ast *parser_parse_statement (struct parser *);
+
 static struct ast *parser_parse_expression2 (struct parser *);
 static struct ast *parser_parse_expression1 (struct parser *);
 static struct ast *parser_parse_expression0 (struct parser *);
@@ -153,6 +155,30 @@ static struct ast *parser_parse_function_definition (struct parser *);
 // static struct ast *parser_parse_turnary (struct parser *);
 // static struct ast *parser_parse_where (struct parser *);
 static struct ast *parser_parse_program (struct parser *);
+
+static struct ast *
+parser_parse_statement (struct parser *parser)
+{
+  struct ast *result;
+
+  result = parser_parse_expression2 (parser);
+  if (ast_match_error (result))
+    return result;
+
+  if (!parser_match (parser, TOKEN_SEMICOLON))
+    {
+      ast_destroy (result);
+      return parser_error_expect_token (parser, TOKEN_SEMICOLON);
+    }
+
+  if (parser_advance (parser))
+    {
+      ast_destroy (result);
+      return parser_error_from_current (parser);
+    }
+
+  return result;
+}
 
 static struct ast *
 parser_parse_expression2_base (struct parser *parser, int previous)
@@ -460,7 +486,31 @@ parser_parse_function_definition (struct parser *parser)
 static struct ast *
 parser_parse_program (struct parser *parser)
 {
-  return parser_parse_expression2 (parser);
+  struct ast *result;
+
+  result = ast_create (AST_PROGRAM, parser->location);
+
+  while (1)
+    switch (parser->current.type)
+      {
+      case TOKEN_RBRACE:
+      case TOKEN_NOTHING:
+        return result;
+      default:
+        {
+          struct ast *statement;
+
+          statement = parser_parse_statement (parser);
+          if (ast_match_error (statement))
+            {
+              ast_destroy (result);
+              return statement;
+            }
+
+          ast_append (result, statement);
+        }
+        break;
+      }
 }
 
 struct ast *
