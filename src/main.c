@@ -5,7 +5,7 @@
 int
 main (void)
 {
-  struct parser parser = parser_create ("square = n -> { result = n * n; result; };", "__tmp__");
+  struct parser parser = parser_create ("[[1,2,3],[4,5,6],[7,8,9]];", "__tmp__");
   struct ast *ast = parser_parse (&parser);
 
   if (ast_match_error (ast))

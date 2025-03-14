@@ -8,7 +8,7 @@ static const char *const AST_TYPE_STRING[] = {
   "string",
   "integer",
   "float",
-  "compound-expression",
+  "array",
   "variable-assignment",
   "function-definition",
   "function-invocation",

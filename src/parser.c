@@ -95,7 +95,7 @@ parser_error_from_current (struct parser *parser)
 static struct ast *
 parser_error_expect_base (struct parser *parser, const char *a, const char *b)
 {
-  return ast_create_e (error_create ("expected %s, got %s", a, b),
+  return ast_create_e (error_create ("expected `%s`, got `%s`", a, b),
                        parser->location);
 }
 
@@ -147,6 +147,7 @@ static struct ast *parser_parse_identifier (struct parser *);
 static struct ast *parser_parse_string (struct parser *);
 static struct ast *parser_parse_integer (struct parser *);
 static struct ast *parser_parse_float (struct parser *);
+static struct ast *parser_parse_array (struct parser *);
 static struct ast *parser_parse_grouping (struct parser *);
 static struct ast *parser_parse_compound_expression (struct parser *);
 static struct ast *parser_parse_variable_assignment (struct parser *);
@@ -305,7 +306,7 @@ parser_parse_expression0 (struct parser *parser)
       result = parser_parse_grouping (parser);
       break;
     case TOKEN_LBRACKET:
-      // result = parser_parse_array (parser);
+      result = parser_parse_array (parser);
       break;
     case TOKEN_LBRACE:
       result = parser_parse_compound_expression (parser);
@@ -343,6 +344,64 @@ static struct ast *
 parser_parse_float (struct parser *parser)
 {
   return parser_parse_atom (parser, AST_FLOAT, TOKEN_FLOAT);
+}
+
+static struct ast *
+parser_parse_array (struct parser *parser)
+{
+  if (!parser_match (parser, TOKEN_LBRACKET))
+    return parser_error_expect_token (parser, TOKEN_LBRACKET);
+
+  if (parser_advance (parser))
+    return parser_error_from_current (parser);
+
+  struct ast *result;
+
+  result = ast_create (AST_ARRAY, parser->location);
+
+  while (!parser_match (parser, TOKEN_RBRACKET)
+         && !parser_match (parser, TOKEN_NOTHING))
+    {
+      struct ast *expression;
+
+      expression = parser_parse_expression2 (parser);
+      if (ast_match_error (expression))
+        {
+          ast_destroy (result);
+          return expression;
+        }
+
+      ast_append (result, expression);
+
+      if (parser_match (parser, TOKEN_RBRACKET))
+        break;
+
+      if (!parser_match (parser, TOKEN_COMMA))
+        {
+          ast_destroy (result);
+          return parser_error_expect_token (parser, TOKEN_COMMA);
+        }
+
+      if (parser_advance (parser))
+        {
+          ast_destroy (result);
+          return parser_error_from_current (parser);
+        }
+    }
+
+  if (!parser_match (parser, TOKEN_RBRACKET))
+    {
+      ast_destroy (result);
+      return parser_error_expect_token (parser, TOKEN_RBRACKET);
+    }
+
+  if (parser_advance (parser))
+    {
+      ast_destroy (result);
+      return parser_error_from_current (parser);
+    }
+
+  return result;
 }
 
 static struct ast *
@@ -521,7 +580,7 @@ parser_parse (struct parser *parser)
 
   struct ast *result;
 
-  result = parser_parse_program (parser);
+result = parser_parse_program (parser);
   if (ast_match_error (result))
     return result;
 
