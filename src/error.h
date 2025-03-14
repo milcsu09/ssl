@@ -10,22 +10,16 @@ struct location
   size_t column;
 };
 
-enum error_type
-{
-  ERROR_NOTHING,
-  ERROR_SYNTAX,
-  ERROR_RUNTIME,
-};
-
 struct error
 {
   char message[256];
-  enum error_type type;
-  struct location location;
+
+  /* Possible new fields */
 };
 
 void location_advance (struct location *, char);
-const char *error_type_string (enum error_type);
+
+struct error error_create (const char *fmt, ...);
 
 #endif // ERROR_H
 

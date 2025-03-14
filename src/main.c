@@ -4,17 +4,22 @@
 int
 main (void)
 {
-  struct lexer lexer = lexer_create (" ( x = 51 ) ", "<>");
+
+  struct lexer lexer = lexer_create ("(x = \"ab)", "<>");
   struct token token;
 
-  while ((token = lexer_next (&lexer)).type != TOKEN_NOTHING)
+  while (1)
     {
-      printf (
-        "%s:%ld:%ld: ",
-        token.location.context,
-        token.location.line,
-        token.location.column
-      );
+      token = lexer_next (&lexer);
+      if (token.type == TOKEN_NOTHING || token.type == TOKEN_ERROR)
+        break;
+
+      // printf (
+      //   "%s:%ld:%ld: ",
+      //   token.location.context,
+      //   token.location.line,
+      //   token.location.column
+      // );
 
       printf ("'%s'", token_type_string (token.type));
       switch (token.type)
@@ -39,15 +44,14 @@ main (void)
       printf ("\n");
     }
 
-  if (lexer.error.type != ERROR_NOTHING)
+  if (token.type == TOKEN_ERROR)
     {
       printf (
-        "%s:%ld:%ld: %s [%s]\n",
-        lexer.error.location.context,
-        lexer.error.location.line,
-        lexer.error.location.column,
-        lexer.error.message,
-        error_type_string (lexer.error.type)
+        "%s:%ld:%ld: fatal-error: %s\n",
+        token.location.context,
+        token.location.line,
+        token.location.column,
+        token.value.e.message
       );
     }
 

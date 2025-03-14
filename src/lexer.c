@@ -6,20 +6,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-static inline void
-lexer_error (struct lexer *lexer, struct location location, const char *fmt,
-             ...)
-{
-  va_list va;
-
-  va_start (va, fmt);
-  vsnprintf (lexer->error.message, sizeof (lexer->error.message), fmt, va);
-  va_end (va);
-
-  lexer->error.type = ERROR_SYNTAX;
-  lexer->error.location = location;
-}
-
 struct lexer
 lexer_create (char *const source, const char *const context)
 {
@@ -30,8 +16,6 @@ lexer_create (char *const source, const char *const context)
   lexer.location.context = context;
   lexer.location.line = 1;
   lexer.location.column = 1;
-
-  lexer.error.type = ERROR_NOTHING;
 
   return lexer;
 }
@@ -102,10 +86,8 @@ lexer_lex_string (struct lexer *lexer)
     }
 
   if (*lexer->current != '"')
-    {
-      lexer_error (lexer, location, "unterminated string-literal");
-      return token_create (TOKEN_NOTHING, lexer->location);
-    }
+    return token_create_e (error_create ("unterminated string-literal"),
+                           TOKEN_ERROR, location);
 
   lexer_advance (lexer);
 
@@ -277,9 +259,8 @@ lexer_next (struct lexer *lexer)
   if (isalpha (c) || c == '_')
     return lexer_lex_identifier (lexer);
 
-  lexer_error (lexer, lexer->location, "unexpected character %c", c);
-
-  return token_create (TOKEN_NOTHING, lexer->location);
+  return token_create_e (error_create ("unexpected character %c", c),
+                         TOKEN_ERROR, lexer->location);
 }
 
 struct token

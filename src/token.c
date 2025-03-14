@@ -4,6 +4,7 @@
 
 static const char *const TOKEN_TYPE_STRING[] = {
   "nothing",
+  "error",
   ";",
   "identifier",
   "string",
@@ -33,6 +34,18 @@ token_create (enum token_type type, struct location location)
 
   token.type = type;
   token.location = location;
+
+  return token;
+}
+
+struct token
+token_create_e (struct error e, enum token_type type, struct location location)
+{
+  struct token token;
+
+  token = token_create (type, location);
+
+  token.value.e = e;
 
   return token;
 }
@@ -90,7 +103,7 @@ token_copy (struct token token)
       copy.value.i = token.value.i;
       break;
     case TOKEN_FLOAT:
-      copy.value.i = token.value.i;
+      copy.value.f = token.value.f;
       break;
     default:
       break;

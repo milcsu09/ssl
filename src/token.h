@@ -5,6 +5,7 @@
 
 union token_entry
 {
+  struct error e;
   long i;
   double f;
   char *s;
@@ -13,6 +14,7 @@ union token_entry
 enum token_type
 {
   TOKEN_NOTHING,
+  TOKEN_ERROR,
   TOKEN_SEMICOLON,
   TOKEN_IDENTIFIER,
   TOKEN_STRING,
@@ -40,6 +42,7 @@ struct token
 
 const char *token_type_string (enum token_type);
 struct token token_create (enum token_type, struct location);
+struct token token_create_e (struct error, enum token_type, struct location);
 struct token token_create_i (long, enum token_type, struct location);
 struct token token_create_f (double, enum token_type, struct location);
 struct token token_create_s (char *, enum token_type, struct location);
