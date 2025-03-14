@@ -1,10 +1,11 @@
 #include <stdio.h>
+#include "ast.h"
 #include "lexer.h"
 
 int
 main (void)
 {
-
+  /*
   struct lexer lexer = lexer_create ("(x = \"ab)", "<>");
   struct token token;
 
@@ -54,6 +55,7 @@ main (void)
         token.value.e.message
       );
     }
+  */
 
   return 0;
 }

@@ -18,6 +18,7 @@ struct error
 };
 
 void location_advance (struct location *, char);
+void location_debug_print (struct location);
 
 struct error error_create (const char *fmt, ...);
 

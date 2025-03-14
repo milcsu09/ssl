@@ -1,5 +1,6 @@
 #include "string.h"
 #include "token.h"
+#include <stdio.h>
 #include <stdlib.h>
 
 static const char *const TOKEN_TYPE_STRING[] = {
@@ -127,6 +128,29 @@ token_destroy (struct token token)
       free (token.value.s);
       break;
     default:
+      break;
+    }
+}
+
+void
+token_debug_print (struct token token)
+{
+  switch (token.type)
+    {
+    case TOKEN_IDENTIFIER:
+      printf ("%s", token.value.s);
+      break;
+    case TOKEN_STRING:
+      printf ("%s", token.value.s);
+      break;
+    case TOKEN_INTEGER:
+      printf ("%ld", token.value.i);
+      break;
+    case TOKEN_FLOAT:
+      printf ("%g", token.value.f);
+      break;
+    default:
+      printf ("%s", token_type_string (token.type));
       break;
     }
 }

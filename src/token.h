@@ -41,6 +41,7 @@ struct token
 };
 
 const char *token_type_string (enum token_type);
+
 struct token token_create (enum token_type, struct location);
 struct token token_create_e (struct error, enum token_type, struct location);
 struct token token_create_i (long, enum token_type, struct location);
@@ -48,6 +49,7 @@ struct token token_create_f (double, enum token_type, struct location);
 struct token token_create_s (char *, enum token_type, struct location);
 struct token token_copy (struct token);
 void token_destroy (struct token);
+void token_debug_print (struct token);
 
 #endif // TOKEN_H
 

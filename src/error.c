@@ -10,6 +10,12 @@ location_advance (struct location *location, char c)
     location->column = 1, location->line++;
 }
 
+void
+location_debug_print (struct location location)
+{
+  printf ("%s:%ld:%ld", location.context, location.line, location.column);
+}
+
 struct error
 error_create (const char *fmt, ...)
 {
