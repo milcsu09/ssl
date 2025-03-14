@@ -5,7 +5,7 @@
 int
 main (void)
 {
-  struct parser parser = parser_create ("f (1 + 2) * f (2 + 4)", "__tmp__");
+  struct parser parser = parser_create ("square = n -> n * n", "__tmp__");
   struct ast *ast = parser_parse (&parser);
 
   if (ast_match_error (ast))
@@ -13,7 +13,7 @@ main (void)
       location_debug_print (ast->location);
       printf (": fatal-error: %s\n", ast->value.error.message);
       ast_destroy (ast);
-      parser_destroy (&parser);
+      parser_cleanup (&parser);
       exit (1);
     }
 

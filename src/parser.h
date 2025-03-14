@@ -12,7 +12,7 @@ struct parser
 };
 
 struct parser parser_create (char *const source, const char *const context);
-void parser_destroy (struct parser *parser);
+void parser_cleanup (struct parser *parser);
 struct ast *parser_parse (struct parser *parser);
 
 #endif // PARSER_H
