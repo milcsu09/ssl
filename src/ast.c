@@ -37,6 +37,18 @@ ast_create (enum ast_type type, struct location location)
 }
 
 struct ast *
+ast_create_e (struct error e, struct location location)
+{
+  struct ast *ast;
+
+  ast = ast_create (AST_ERROR, location);
+
+  ast->value.error = e;
+
+  return ast;
+}
+
+struct ast *
 ast_copy (struct ast *ast, int next)
 {
   if (ast == NULL)
@@ -89,7 +101,7 @@ void
 ast_append (struct ast *ast, struct ast *node)
 {
   if (ast->child == NULL)
-    ast->child = ast;
+    ast->child = node;
   else
     ast_attach (ast->child, node);
 }
@@ -103,6 +115,18 @@ ast_attach (struct ast *ast, struct ast *node)
     current = current->next;
 
   current->next = node;
+}
+
+int
+ast_match (struct ast *ast, enum ast_type type)
+{
+  return ast->type == type;
+}
+
+int
+ast_match_error (struct ast *ast)
+{
+  return ast_match (ast, AST_ERROR);
 }
 
 #define AST_DEBUG_INDENT 4
@@ -127,15 +151,21 @@ ast_debug_print (struct ast *ast, size_t depth)
   switch (ast->type)
     {
     case AST_ERROR:
+      printf ("%s", ast->value.error.message);
+      printf (" ");
       break;
     default:
-      token_debug_print (ast->value.token);
-      printf (" ");
+      if (ast->value.token.type != TOKEN_NOTHING)
+        {
+          token_debug_print (ast->value.token);
+          printf (" ");
+        }
       break;
     }
 
+  printf ("(");
   location_debug_print (ast->location);
-  printf ("\n");
+  printf (")\n");
 
   ast_debug_print (ast->child, depth + 1);
   ast_debug_print (ast->next, depth);

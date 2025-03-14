@@ -1,12 +1,27 @@
 #include <stdio.h>
-#include "ast.h"
-#include "lexer.h"
+#include <stdlib.h>
+#include "parser.h"
 
 int
 main (void)
 {
+  struct parser parser = parser_create ("f (1 + 2) * f (2 + 4)", "__tmp__");
+  struct ast *ast = parser_parse (&parser);
+
+  if (ast_match_error (ast))
+    {
+      location_debug_print (ast->location);
+      printf (": fatal-error: %s\n", ast->value.error.message);
+      ast_destroy (ast);
+      parser_destroy (&parser);
+      exit (1);
+    }
+
+  ast_debug_print (ast, 0);
+  ast_destroy (ast);
+
   /*
-  struct lexer lexer = lexer_create ("(x = \"ab)", "<>");
+  struct lexer lexer = lexer_create ("1+2*34", "<>");
   struct token token;
 
   while (1)

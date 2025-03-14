@@ -40,11 +40,11 @@ token_create (enum token_type type, struct location location)
 }
 
 struct token
-token_create_e (struct error e, enum token_type type, struct location location)
+token_create_e (struct error e, struct location location)
 {
   struct token token;
 
-  token = token_create (type, location);
+  token = token_create (TOKEN_ERROR, location);
 
   token.value.e = e;
 
@@ -130,6 +130,18 @@ token_destroy (struct token token)
     default:
       break;
     }
+}
+
+int
+token_match (struct token token, enum token_type type)
+{
+  return token.type == type;
+}
+
+int
+token_match_error (struct token token)
+{
+  return token_match (token, TOKEN_ERROR);
 }
 
 void

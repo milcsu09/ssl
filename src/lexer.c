@@ -63,6 +63,20 @@ lexer_advance_n_token (struct lexer *lexer, size_t n, size_t type)
   return token;
 }
 
+static struct token
+lexer_advance_identifier_n (struct lexer *lexer, size_t n)
+{
+  struct token token;
+
+  char *s = string_copy_n (lexer->current, n);
+
+  token = token_create_s (s, TOKEN_IDENTIFIER, lexer->location);
+
+  lexer_advance_n (lexer, n);
+
+  return token;
+}
+
 static int
 lexer_match (struct lexer *lexer, const char *s)
 {
@@ -87,7 +101,7 @@ lexer_lex_string (struct lexer *lexer)
 
   if (*lexer->current != '"')
     return token_create_e (error_create ("unterminated string-literal"),
-                           TOKEN_ERROR, location);
+                           location);
 
   lexer_advance (lexer);
 
@@ -242,10 +256,18 @@ lexer_next (struct lexer *lexer)
       return lexer_advance_token (lexer, TOKEN_EQUAL);
     case ',':
       return lexer_advance_token (lexer, TOKEN_COMMA);
+    case '+':
+      return lexer_advance_identifier_n (lexer, 1);
     case '-':
       if (lexer_match (lexer, "->"))
         return lexer_advance_n_token (lexer, 2, TOKEN_ARROW);
-      break;
+      return lexer_advance_identifier_n (lexer, 1);
+    case '/':
+      return lexer_advance_identifier_n (lexer, 1);
+    case '*':
+      return lexer_advance_identifier_n (lexer, 1);
+    case '%':
+      return lexer_advance_identifier_n (lexer, 1);
     case '\0':
       return token_create (TOKEN_NOTHING, lexer->location);
     }
@@ -260,7 +282,7 @@ lexer_next (struct lexer *lexer)
     return lexer_lex_identifier (lexer);
 
   return token_create_e (error_create ("unexpected character %c", c),
-                         TOKEN_ERROR, lexer->location);
+                         lexer->location);
 }
 
 struct token
