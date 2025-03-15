@@ -1,7 +1,6 @@
 #ifndef LEXER_H
 #define LEXER_H
 
-#include "arena.h"
 #include "token.h"
 
 struct lexer

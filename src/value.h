@@ -23,6 +23,7 @@ union value_entry
   long i;
   double f;
   char *s;
+  struct array *array;
 };
 
 enum value_type

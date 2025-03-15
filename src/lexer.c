@@ -1,3 +1,4 @@
+#include "arena.h"
 #include "string.h"
 #include "lexer.h"
 #include <ctype.h>

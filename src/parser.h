@@ -1,8 +1,6 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "arena.h"
-#include "ast.h"
 #include "lexer.h"
 
 struct parser

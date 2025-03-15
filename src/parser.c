@@ -1,12 +1,16 @@
+#include "ast.h"
 #include "parser.h"
+#include <stdlib.h>
 #include <string.h>
 
 struct parser
 parser_create (struct lexer *lexer, struct arena *arena)
 {
   struct parser parser;
+
   parser.lexer = lexer;
   parser.arena = arena;
+
   return parser;
 }
 

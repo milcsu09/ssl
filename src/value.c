@@ -1,3 +1,4 @@
+#include "array.h"
 #include "string.h"
 #include "value.h"
 #include <stdio.h>
@@ -70,6 +71,7 @@ value_copy (struct value *value)
       copy->value.f = value->value.f;
       break;
     case VALUE_ARRAY:
+      copy->value.array = array_copy (value->value.array);
       break;
     case VALUE_THUNK:
       break;
@@ -99,7 +101,7 @@ value_destroy (struct value *value)
     case VALUE_FLOAT:
       break;
     case VALUE_ARRAY:
-      /* array_destroy */
+      array_destroy (value->value.array);
       break;
     case VALUE_THUNK:
       /* thunk_destroy */

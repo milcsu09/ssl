@@ -1,8 +1,9 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
-#include "arena.h"
 #include "error.h"
+
+struct arena;
 
 union token_entry
 {
