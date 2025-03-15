@@ -113,6 +113,8 @@ value_destroy (struct value *value)
       /* native_destroy */
       break;
     }
+
+  free (value);
 }
 
 void

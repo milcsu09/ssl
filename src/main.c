@@ -4,10 +4,15 @@
 #include "arena.h"
 #include "ast.h"
 #include "parser.h"
+#include "value.h"
+
+#include "table.h"
 
 int
 main (void)
 {
+  // printf ("%ld\n", sizeof (struct table));
+
   struct arena lexer_arena = {0};
   struct lexer lexer = lexer_create ("a + ? * c;", "__tmp__", &lexer_arena);
 
