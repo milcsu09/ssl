@@ -1,6 +1,7 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
+#include "arena.h"
 #include "error.h"
 
 union token_entry
@@ -48,7 +49,6 @@ struct token token_create_i (long, enum token_type, struct location);
 struct token token_create_f (double, enum token_type, struct location);
 struct token token_create_s (char *, enum token_type, struct location);
 struct token token_copy (struct token, struct arena *);
-void token_destroy (struct token);
 int token_match (struct token, enum token_type);
 int token_match_error (struct token);
 void token_debug_print (struct token);

@@ -76,29 +76,6 @@ ast_copy (struct ast *ast, int next, struct arena *arena)
   return copy;
 }
 
-/*
-void
-ast_destroy (struct ast *ast)
-{
-  if (ast == NULL)
-    return;
-
-  ast_destroy (ast->child);
-  ast_destroy (ast->next);
-
-  switch (ast->type)
-    {
-    case AST_ERROR:
-      break;
-    default:
-      token_destroy (ast->value.token);
-      break;
-    }
-
-  free (ast);
-}
-*/
-
 void
 ast_append (struct ast *ast, struct ast *node)
 {

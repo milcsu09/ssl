@@ -1,4 +1,5 @@
 #include "arena.h"
+#include <stdint.h>
 #include <stdlib.h>
 
 struct region

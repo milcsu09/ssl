@@ -14,7 +14,6 @@ struct parser
 };
 
 struct parser parser_create (struct lexer *lexer, struct arena *);
-// void parser_cleanup (struct parser *);
 struct ast *parser_parse (struct parser *);
 
 #endif // PARSER_H

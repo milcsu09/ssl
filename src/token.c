@@ -1,7 +1,6 @@
 #include "string.h"
 #include "token.h"
 #include <stdio.h>
-#include <stdlib.h>
 
 static const char *const TOKEN_TYPE_STRING[] = {
   "nothing",
@@ -114,22 +113,6 @@ token_copy (struct token token, struct arena *arena)
   copy.location = token.location;
 
   return copy;
-}
-
-void
-token_destroy (struct token token)
-{
-  switch (token.type)
-    {
-    case TOKEN_IDENTIFIER:
-      free (token.value.s);
-      break;
-    case TOKEN_STRING:
-      free (token.value.s);
-      break;
-    default:
-      break;
-    }
 }
 
 int
