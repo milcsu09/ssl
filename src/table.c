@@ -72,6 +72,14 @@ table_destroy (struct table *table)
 void
 table_append (struct table *table, struct table_entry *entry)
 {
+  for (size_t i = 0; i < table->size; ++i)
+    if (strcmp (table->storage[i]->key, entry->key) == 0)
+      {
+        table_entry_destroy (table->storage[i]);
+        table->storage[i] = entry;
+        break;
+      }
+
   if (table->size >= table->capacity)
     {
       table->capacity *= 2;
