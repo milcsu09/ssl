@@ -1,5 +1,6 @@
 #include "string.h"
 #include "value.h"
+#include <stdio.h>
 #include <stdlib.h>
 
 static const char *const VALUE_TYPE_STRING[] = {
@@ -124,5 +125,40 @@ value_release (struct value *value)
   value->references--;
   if (value->references == 0)
     value_destroy (value);
+}
+
+int
+value_match (struct value *value, enum value_type type)
+{
+  return value->type == type;
+}
+
+int
+value_match_error (struct value *value)
+{
+  return value_match (value, VALUE_ERROR);
+}
+
+void
+value_debug_print (struct value *value)
+{
+  switch (value->type)
+    {
+    case VALUE_STRING:
+      printf ("\"%s\"", value->value.s);
+      break;
+    case VALUE_INTEGER:
+      printf ("%ld", value->value.i);
+      break;
+    case VALUE_FLOAT:
+      printf ("%g", value->value.f);
+      break;
+    case VALUE_ARRAY:
+      /* LATER. */
+      break;
+    default:
+      printf ("%s", value_type_string (value->type));
+      break;
+    }
 }
 
