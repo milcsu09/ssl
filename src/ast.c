@@ -28,7 +28,10 @@ ast_create (enum ast_type type, struct location location, struct arena *arena)
 {
   struct ast *ast;
 
-  ast = arena_alloc (arena, sizeof (struct ast));
+  if (arena)
+    ast = arena_alloc (arena, sizeof (struct ast));
+  else
+    ast = calloc (1, sizeof (struct ast));
 
   ast->type = type;
   ast->location = location;
@@ -37,13 +40,14 @@ ast_create (enum ast_type type, struct location location, struct arena *arena)
 }
 
 struct ast *
-ast_create_e (struct error e, struct location location, struct arena *arena)
+ast_create_e (struct error error, struct location location,
+              struct arena *arena)
 {
   struct ast *ast;
 
   ast = ast_create (AST_ERROR, location, arena);
 
-  ast->value.error = e;
+  ast->value.error = error;
 
   return ast;
 }
@@ -74,6 +78,27 @@ ast_copy (struct ast *ast, int next, struct arena *arena)
     copy->next = ast_copy (ast->next, 1, arena);
 
   return copy;
+}
+
+void
+ast_destroy (struct ast *ast)
+{
+  if (ast == NULL)
+    return;
+
+  ast_destroy (ast->child);
+  ast_destroy (ast->next);
+
+  switch (ast->type)
+    {
+    case AST_ERROR:
+      break;
+    default:
+      token_destroy (ast->value.token);
+      break;
+    }
+
+  free (ast);
 }
 
 void
@@ -125,7 +150,7 @@ ast_debug_print (struct ast *ast, size_t depth)
         printf (" ");
     }
 
-  printf ("%s: ", ast_type_string (ast->type));
+  printf ("%s ", ast_type_string (ast->type));
 
   switch (ast->type)
     {
@@ -142,9 +167,9 @@ ast_debug_print (struct ast *ast, size_t depth)
       break;
     }
 
-  printf ("(");
+  printf ("at ");
   location_debug_print (ast->location);
-  printf (")\n");
+  printf ("\n");
 
   ast_debug_print (ast->child, depth + 1);
   ast_debug_print (ast->next, depth);

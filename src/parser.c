@@ -78,7 +78,7 @@ static struct ast *
 parser_error_from_token (struct parser *parser, struct token token,
                          struct location location)
 {
-  return ast_create_e (token.value.e, location, parser->arena);
+  return ast_create_e (token.value.error, location, parser->arena);
 }
 
 static struct ast *
@@ -259,6 +259,9 @@ parser_parse_expression0 (struct parser *parser)
     case TOKEN_IDENTIFIER:
       {
         struct token peek = lexer_peek (parser->lexer);
+
+        /* Peek may leak memory. NOTE: `parser->lexer->arena` cleans it up. */
+
         if (token_match_error (peek))
           return parser_error_from_token (parser, peek, peek.location);
 

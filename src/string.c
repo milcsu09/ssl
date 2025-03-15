@@ -10,7 +10,12 @@ string_copy (const char *s, struct arena *arena)
 
   size_t length = strlen (s);
 
-  char *copy = arena_alloc (arena, length + 1);
+  char *copy;
+
+  if (arena)
+    copy = arena_alloc (arena, length + 1);
+  else
+    copy = calloc (length + 1, 1);
 
   if (copy)
     memcpy (copy, s, length);
@@ -24,7 +29,12 @@ string_copy_n (const char *s, size_t length, struct arena *arena)
   if (s == NULL)
     return NULL;
 
-  char *copy = arena_alloc (arena, length + 1);
+  char *copy;
+
+  if (arena)
+    copy = arena_alloc (arena, length + 1);
+  else
+    copy = calloc (length + 1, 1);
 
   if (copy)
     memcpy (copy, s, length);

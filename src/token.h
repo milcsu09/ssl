@@ -6,7 +6,7 @@
 
 union token_entry
 {
-  struct error e;
+  struct error error;
   long i;
   double f;
   char *s;
@@ -48,9 +48,16 @@ struct token token_create_e (struct error, struct location);
 struct token token_create_i (long, enum token_type, struct location);
 struct token token_create_f (double, enum token_type, struct location);
 struct token token_create_s (char *, enum token_type, struct location);
+
 struct token token_copy (struct token, struct arena *);
+
+/* When token was copied without an arena. `token_destroy` assumes that
+ * `token.value.s` can be freed as well. */
+void token_destroy (struct token);
+
 int token_match (struct token, enum token_type);
 int token_match_error (struct token);
+
 void token_debug_print (struct token);
 
 #endif // TOKEN_H

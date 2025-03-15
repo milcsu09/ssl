@@ -10,6 +10,7 @@ struct parser
   struct lexer *lexer;
   struct token current;
   struct location location;
+  /* NOTE: when `parser->arena` == NULL, parser WILL leak memory. */
   struct arena *arena;
 };
 
