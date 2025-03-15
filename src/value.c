@@ -1,5 +1,8 @@
 #include "array.h"
+#include "function.h"
+#include "native.h"
 #include "string.h"
+#include "thunk.h"
 #include "value.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -74,10 +77,13 @@ value_copy (struct value *value)
       copy->value.array = array_copy (value->value.array);
       break;
     case VALUE_THUNK:
+      copy->value.thunk = thunk_copy (value->value.thunk);
       break;
     case VALUE_FUNCTION:
+      copy->value.function = function_copy (value->value.function);
       break;
     case VALUE_NATIVE:
+      copy->value.native = native_copy (value->value.native);
       break;
     }
 
@@ -104,13 +110,13 @@ value_destroy (struct value *value)
       array_destroy (value->value.array);
       break;
     case VALUE_THUNK:
-      /* thunk_destroy */
+      thunk_destroy (value->value.thunk);
       break;
     case VALUE_FUNCTION:
-      /* function_destroy */
+      function_destroy (value->value.function);
       break;
     case VALUE_NATIVE:
-      /* native_destroy */
+      native_destroy (value->value.native);
       break;
     }
 

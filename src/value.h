@@ -24,6 +24,9 @@ union value_entry
   double f;
   char *s;
   struct array *array;
+  struct thunk *thunk;
+  struct function *function;
+  struct native *native;
 };
 
 enum value_type

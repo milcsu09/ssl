@@ -14,7 +14,7 @@ main (void)
   // printf ("%ld\n", sizeof (struct table));
 
   struct arena lexer_arena = {0};
-  struct lexer lexer = lexer_create ("a + ? * c;", "__tmp__", &lexer_arena);
+  struct lexer lexer = lexer_create ("a + b * c;", "__tmp__", &lexer_arena);
 
   struct arena parser_arena = {0};
   struct parser parser = parser_create (&lexer, &parser_arena);
