@@ -7,7 +7,8 @@
 #include <string.h>
 
 struct lexer
-lexer_create (char *const source, const char *const context)
+lexer_create (char *const source, const char *const context,
+              struct arena *arena)
 {
   struct lexer lexer;
 
@@ -16,6 +17,8 @@ lexer_create (char *const source, const char *const context)
   lexer.location.context = context;
   lexer.location.line = 1;
   lexer.location.column = 1;
+
+  lexer.arena = arena;
 
   return lexer;
 }
@@ -68,7 +71,7 @@ lexer_advance_identifier_n (struct lexer *lexer, size_t n)
 {
   struct token token;
 
-  char *s = string_copy_n (lexer->current, n);
+  char *s = string_copy_n (lexer->current, n, lexer->arena);
 
   token = token_create_s (s, TOKEN_IDENTIFIER, lexer->location);
 
@@ -105,7 +108,7 @@ lexer_lex_string (struct lexer *lexer)
 
   lexer_advance (lexer);
 
-  char *s = string_copy_until (start + 1, lexer->current - 1);
+  char *s = string_copy_until (start + 1, lexer->current - 1, lexer->arena);
 
   string_escape (s);
 
@@ -214,7 +217,7 @@ lexer_lex_identifier (struct lexer *lexer)
   while (isalnum (*lexer->current) || *lexer->current == '_')
     lexer_advance (lexer);
 
-  char *s = string_copy_until (start, lexer->current);
+  char *s = string_copy_until (start, lexer->current, lexer->arena);
 
   return token_create_s (s, TOKEN_IDENTIFIER, location);
 }

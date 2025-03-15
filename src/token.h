@@ -47,7 +47,7 @@ struct token token_create_e (struct error, struct location);
 struct token token_create_i (long, enum token_type, struct location);
 struct token token_create_f (double, enum token_type, struct location);
 struct token token_create_s (char *, enum token_type, struct location);
-struct token token_copy (struct token);
+struct token token_copy (struct token, struct arena *);
 void token_destroy (struct token);
 int token_match (struct token, enum token_type);
 int token_match_error (struct token);

@@ -5,7 +5,20 @@
 int
 main (void)
 {
-  struct parser parser = parser_create ("[[1,2,3],[4,5,6],[7,8,9]];", "__tmp__");
+  struct arena lexer_arena = {0};
+  struct lexer lexer = lexer_create ("a + (  ", "__tmp__", &lexer_arena);
+
+  struct arena parser_arena = {0};
+  struct parser parser = parser_create (&lexer, &parser_arena);
+
+  struct ast *ast = parser_parse (&parser);
+
+  ast_debug_print (ast, 0);
+
+  arena_destroy (&parser_arena);
+  arena_destroy (&lexer_arena);
+
+  /*struct parser parser = parser_create ("a + b +", "__tmp__");
   struct ast *ast = parser_parse (&parser);
 
   if (ast_match_error (ast))
@@ -13,15 +26,17 @@ main (void)
       location_debug_print (ast->location);
       printf (": fatal-error: %s\n", ast->value.error.message);
       ast_destroy (ast);
-      parser_cleanup (&parser);
+      // parser_cleanup (&parser);
       exit (1);
     }
 
   ast_debug_print (ast, 0);
   ast_destroy (ast);
+  */
 
   /*
-  struct lexer lexer = lexer_create ("1+2*34", "<>");
+  struct arena lexer_arena = {0};
+  struct lexer lexer = lexer_create ("almaspite + kortebanan", "<>", &lexer_arena);
   struct token token;
 
   while (1)
@@ -56,7 +71,7 @@ main (void)
           break;
         }
 
-      token_destroy (token);
+      // token_destroy (token);
       printf ("\n");
     }
 
@@ -70,6 +85,8 @@ main (void)
         token.value.e.message
       );
     }
+
+  arena_destroy (&lexer_arena);
   */
 
   return 0;

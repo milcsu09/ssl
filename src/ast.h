@@ -1,6 +1,7 @@
 #ifndef AST_H
 #define AST_H
 
+#include "arena.h"
 #include "token.h"
 
 union ast_entry
@@ -36,10 +37,10 @@ struct ast
 
 const char *ast_type_string (enum ast_type);
 
-struct ast *ast_create (enum ast_type, struct location);
-struct ast *ast_create_e (struct error, struct location);
-struct ast *ast_copy (struct ast *, int);
-void ast_destroy (struct ast *);
+struct ast *ast_create (enum ast_type, struct location, struct arena *);
+struct ast *ast_create_e (struct error, struct location, struct arena *);
+struct ast *ast_copy (struct ast *, int, struct arena *);
+// void ast_destroy (struct ast *);
 void ast_append (struct ast *, struct ast *);
 void ast_attach (struct ast *, struct ast *);
 int ast_match (struct ast *, enum ast_type);

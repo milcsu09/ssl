@@ -24,11 +24,11 @@ ast_type_string (enum ast_type type)
 }
 
 struct ast *
-ast_create (enum ast_type type, struct location location)
+ast_create (enum ast_type type, struct location location, struct arena *arena)
 {
   struct ast *ast;
 
-  ast = calloc (1, sizeof (struct ast));
+  ast = arena_alloc (arena, sizeof (struct ast));
 
   ast->type = type;
   ast->location = location;
@@ -37,11 +37,11 @@ ast_create (enum ast_type type, struct location location)
 }
 
 struct ast *
-ast_create_e (struct error e, struct location location)
+ast_create_e (struct error e, struct location location, struct arena *arena)
 {
   struct ast *ast;
 
-  ast = ast_create (AST_ERROR, location);
+  ast = ast_create (AST_ERROR, location, arena);
 
   ast->value.error = e;
 
@@ -49,14 +49,14 @@ ast_create_e (struct error e, struct location location)
 }
 
 struct ast *
-ast_copy (struct ast *ast, int next)
+ast_copy (struct ast *ast, int next, struct arena *arena)
 {
   if (ast == NULL)
     return NULL;
 
   struct ast *copy;
 
-  copy = ast_create (ast->type, ast->location);
+  copy = ast_create (ast->type, ast->location, arena);
 
   switch (ast->type)
     {
@@ -64,18 +64,19 @@ ast_copy (struct ast *ast, int next)
       copy->value.error = ast->value.error;
       break;
     default:
-      copy->value.token = token_copy (ast->value.token);
+      copy->value.token = token_copy (ast->value.token, arena);
       break;
     }
 
-  copy->child = ast_copy (ast->child, 1);
+  copy->child = ast_copy (ast->child, 1, arena);
 
   if (next)
-    copy->next = ast_copy (ast->next, 1);
+    copy->next = ast_copy (ast->next, 1, arena);
 
   return copy;
 }
 
+/*
 void
 ast_destroy (struct ast *ast)
 {
@@ -96,6 +97,7 @@ ast_destroy (struct ast *ast)
 
   free (ast);
 }
+*/
 
 void
 ast_append (struct ast *ast, struct ast *node)

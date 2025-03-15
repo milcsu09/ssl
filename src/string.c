@@ -3,14 +3,14 @@
 #include <string.h>
 
 char *
-string_copy (const char *s)
+string_copy (const char *s, struct arena *arena)
 {
   if (s == NULL)
     return NULL;
 
   size_t length = strlen (s);
 
-  char *copy = calloc (length + 1, sizeof (char));
+  char *copy = arena_alloc (arena, length + 1);
 
   if (copy)
     memcpy (copy, s, length);
@@ -19,12 +19,12 @@ string_copy (const char *s)
 }
 
 char *
-string_copy_n (const char *s, size_t length)
+string_copy_n (const char *s, size_t length, struct arena *arena)
 {
   if (s == NULL)
     return NULL;
 
-  char *copy = calloc (length + 1, sizeof (char));
+  char *copy = arena_alloc (arena, length + 1);
 
   if (copy)
     memcpy (copy, s, length);
@@ -33,9 +33,9 @@ string_copy_n (const char *s, size_t length)
 }
 
 char *
-string_copy_until (const char *s, const char *e)
+string_copy_until (const char *s, const char *e, struct arena *arena)
 {
-  return string_copy_n (s, e - s);
+  return string_copy_n (s, e - s, arena);
 }
 
 void

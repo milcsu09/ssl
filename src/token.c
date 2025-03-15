@@ -88,17 +88,17 @@ token_create_s (char *s, enum token_type type, struct location location)
 }
 
 struct token
-token_copy (struct token token)
+token_copy (struct token token, struct arena *arena)
 {
   struct token copy;
 
   switch (token.type)
     {
     case TOKEN_IDENTIFIER:
-      copy.value.s = string_copy (token.value.s);
+      copy.value.s = string_copy (token.value.s, arena);
       break;
     case TOKEN_STRING:
-      copy.value.s = string_copy (token.value.s);
+      copy.value.s = string_copy (token.value.s, arena);
       break;
     case TOKEN_INTEGER:
       copy.value.i = token.value.i;
