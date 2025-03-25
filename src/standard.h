@@ -11,5 +11,7 @@ struct value *standard_f_mul (struct value *);
 struct value *standard_f_div (struct value *);
 struct value *standard_f_mod (struct value *);
 
+struct value *standard_f_error (struct value *);
+
 #endif // STANDARD_H
 

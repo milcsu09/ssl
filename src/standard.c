@@ -139,3 +139,11 @@ standard_f_mod (struct value *curry)
   return result;
 }
 
+struct value *
+standard_f_error (struct value *curry)
+{
+  struct native *native = curry->value.native;
+  struct error e = error_create (native->arguments->storage[0]->value.s);
+  return value_create_e (e, curry->location);
+}
+

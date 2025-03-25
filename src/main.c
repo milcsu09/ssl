@@ -86,12 +86,15 @@ main (int argc, char *argv[])
   struct table *gst = table_create (4, NULL);
 
   table_append_native (gst, standard_f_f, "_f");
+
   table_append_native (gst, standard_f_print, "print");
   table_append_native (gst, standard_f_add, "+");
   table_append_native (gst, standard_f_sub, "-");
   table_append_native (gst, standard_f_mul, "*");
   table_append_native (gst, standard_f_div, "/");
   table_append_native (gst, standard_f_mod, "%");
+
+  table_append_native (gst, standard_f_error, "error");
 
   struct value *value = evaluate (ast, gst);
 
@@ -110,7 +113,7 @@ main (int argc, char *argv[])
       exit (1);
     }
 
-  printf ("-------------------\n");
+  printf ("----------------\n");
   printf ("evaluated type:  %s\n",
           value_type_string (value->type));
   printf ("evaluated value: ");
@@ -120,8 +123,8 @@ main (int argc, char *argv[])
   arena_destroy (&lexer_arena);
   arena_destroy (&parser_arena);
 
-  printf ("-------------------\n");
-  table_debug_print (gst);
+  // printf ("-------------------\n");
+  // table_debug_print (gst);
 
   free (src);
   value_destroy (value);

@@ -14,17 +14,36 @@ parser_create (struct lexer *lexer, struct arena *arena)
   return parser;
 }
 
-/* Higher value = Higher precedence. */
 static struct
 {
   const char *key;
   int precedence;
 } PRECEDENCE_TABLE[] = {
-  { "+", 15 },
-  { "-", 15 },
-  { "*", 20 },
-  { "/", 20 },
-  { "%", 20 },
+  /* LATER.
+   * { "||",  5 },
+   * { "&&",  10 },
+
+   * { "|",   15 },
+   * { "^",   15 },
+   * { "&",   15 },
+
+   * { "==",  20 },
+   * { "!=",  20 },
+
+   * { "<",   25 },
+   * { ">",   25 },
+   * { "<=",  25 },
+   * { ">=",  25 },
+
+   * { "<<",  30 },
+   * { ">>",  30 }, */
+
+  { "+",   35 },
+  { "-",   35 },
+
+  { "*",   40 },
+  { "/",   40 },
+  { "%",   40 },
 };
 
 static int

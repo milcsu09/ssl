@@ -242,6 +242,9 @@ evaluate_function_invocation (struct ast *ast, struct table *table)
   if (value_match (f, VALUE_NATIVE))
     {
       struct value *native_v = value_copy (f);
+
+      native_v->location = ast->location;
+
       struct native *native = native_v->value.native;
 
       struct value *argument = evaluate (ast->child->next, table);
