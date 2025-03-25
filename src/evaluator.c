@@ -1,3 +1,4 @@
+#include "array.h"
 #include "ast.h"
 #include "evaluator.h"
 #include "function.h"
@@ -28,7 +29,6 @@ evaluate (struct ast *ast, struct table *table)
     case AST_ERROR:
       printf ("evaluate (): AST has ERROR type ???\n");
       abort ();
-      // return value_create_e (ast->value.error, ast->location);
     case AST_IDENTIFIER:
       return evaluate_identifier (ast, table);
     case AST_STRING:
@@ -72,6 +72,9 @@ evaluate_identifier (struct ast *ast, struct table *table)
     return value_create_e (error_create ("variable not in scope: %s", name),
                            ast->location);
 
+  // struct value *copy = value_copy (value);
+  // value_retain (copy);
+  // return copy;
   return value_copy (value);
 }
 
@@ -124,7 +127,42 @@ evaluate_array (struct ast *ast, struct table *table)
 
   struct value *value;
 
-  value = value_create_e (error_create ("intentional error"), ast->location);
+  value = value_create (VALUE_ARRAY, ast->location);
+
+  size_t n;
+  struct ast *current;
+
+  n = 0;
+  current = ast->child;
+  while (current != NULL)
+    current = current->next, ++n;
+
+  struct value **body = calloc (n, sizeof (struct value *));
+
+  n = 0;
+  current = ast->child;
+  while (current != NULL)
+    {
+      struct value *item = evaluate (current, table);
+      if (value_match_error (item))
+        {
+          free (value);
+          printf ("%ld\n", n);
+          for (size_t i = 0; i < n; ++i)
+            value_destroy (body[i]);
+          free (body);
+          return item;
+        }
+
+      body[n++] = item;
+      current = current->next;
+    }
+
+  value->value.array = array_create (body, n);
+
+  for (size_t i = 0; i < n; ++i)
+    value_destroy (body[i]);
+  free (body);
 
   return value;
 }
@@ -170,7 +208,7 @@ evaluate_function_invocation (struct ast *ast, struct table *table)
     {
       struct function *function = f->value.function;
 
-      struct table *f_table = table_create (4, function->table);
+      struct table *f_table = table_copy (function->table);
 
       struct value *argument = evaluate (ast->child->next, table);
       if (value_match_error (argument))
@@ -196,6 +234,7 @@ evaluate_function_invocation (struct ast *ast, struct table *table)
       value_destroy (f);
       table_destroy (f_table);
 
+      // value_retain (result);
       return result;
     }
 
@@ -228,6 +267,7 @@ evaluate_program (struct ast *ast, struct table *table)
   if (value == NULL)
     value = value_create (VALUE_NOTHING, ast->location);
 
+  // value_retain (value);
   return value;
 }
 

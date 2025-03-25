@@ -2,7 +2,6 @@
 #define ARENA_H
 
 #include <stddef.h>
-#include <stdint.h>
 
 struct region;
 

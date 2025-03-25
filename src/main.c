@@ -8,13 +8,43 @@
 #include "parser.h"
 #include "value.h"
 
-int
-main (void)
+static char *
+read_file (const char *filename)
 {
-  // printf ("%ld\n", sizeof (struct table));
+  FILE *file = fopen (filename, "r");
+  if (file == NULL)
+    {
+      perror ("Cannnot open file");
+      return NULL;
+    }
+
+  fseek (file, 0, SEEK_END);
+  size_t file_size = ftell (file);
+  fseek (file, 0, SEEK_SET);
+
+  char *buffer = (char *)malloc (file_size + 1);
+
+  size_t bytes_read = fread (buffer, 1, file_size, file);
+
+  buffer[file_size] = '\0';
+
+  fclose (file);
+  return buffer;
+}
+
+int
+main (int argc, char *argv[])
+{
+  if (argc != 2)
+    {
+      fprintf (stderr, "Usage: %s <file>\n", argv[0]);
+      abort ();
+    }
+
+  char *src = read_file (argv[1]);
 
   struct arena lexer_arena = {0};
-  struct lexer lexer = lexer_create ("f = a -> b -> a; f1 = f 1; f 1 512;", "__tmp__", &lexer_arena);
+  struct lexer lexer = lexer_create (src, argv[1], &lexer_arena);
 
   struct arena parser_arena = {0};
   struct parser parser = parser_create (&lexer, &parser_arena);
@@ -29,10 +59,11 @@ main (void)
       arena_destroy (&lexer_arena);
       arena_destroy (&parser_arena);
 
+      free (src);
       exit (1);
     }
-  // else
-  //   ast_debug_print (ast, 0);
+  else
+    ast_debug_print (ast, 0);
 
   struct table *gst = table_create (4, NULL);
   struct value *value = evaluate (ast, gst);
@@ -48,14 +79,15 @@ main (void)
       value_destroy (value);
       table_destroy (gst);
 
+      free (src);
       exit (1);
     }
 
-  printf ("\nevaluation returned with %s type\n",
+  printf ("evaluated type:  %s\n",
           value_type_string (value->type));
-  printf ("\n");
+  printf ("evaluated value: ");
   value_debug_print (value);
-  printf ("\n\n");
+  printf ("\n");
 
   arena_destroy (&lexer_arena);
   arena_destroy (&parser_arena);
@@ -67,6 +99,7 @@ main (void)
       printf ("\n");
     }
 
+  free (src);
   value_destroy (value);
   table_destroy (gst);
 

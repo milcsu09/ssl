@@ -1,6 +1,7 @@
 #include "string.h"
 #include "table.h"
 #include "value.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -77,7 +78,7 @@ table_append (struct table *table, struct table_entry *entry)
       {
         table_entry_destroy (table->storage[i]);
         table->storage[i] = entry;
-        break;
+        return;
       }
 
   if (table->size >= table->capacity)
@@ -97,9 +98,25 @@ table_find (struct table *table, const char *key)
     if (strcmp (table->storage[i]->key, key) == 0)
       return table->storage[i]->value;
 
-  if (table->parent)
+  if (table->parent != NULL)
     return table_find (table->parent, key);
 
   return NULL;
+}
+
+void
+table_debug_print (struct table *table)
+{
+  if (table == NULL)
+    return;
+
+  for (size_t i = 0; i < table->size; ++i)
+    {
+      printf ("%s=", table->storage[i]->key);
+      value_debug_print (table->storage[i]->value);
+      printf ("\n");
+    }
+
+  table_debug_print (table->parent);
 }
 

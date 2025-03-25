@@ -30,5 +30,6 @@ array_destroy (struct array *array)
   for (size_t i = 0; i < array->size; ++i)
     value_destroy (array->storage[i]);
   free (array->storage);
+  free (array);
 }
 

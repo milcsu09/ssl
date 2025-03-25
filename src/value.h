@@ -69,6 +69,8 @@ void value_retain (struct value *);
  * that has been retained before. */
 void value_release (struct value *);
 
+void value_drop (struct value *);
+
 int value_match (struct value *, enum value_type);
 int value_match_error (struct value *);
 

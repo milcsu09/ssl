@@ -33,5 +33,7 @@ void table_destroy (struct table *);
 void table_append (struct table *, struct table_entry *);
 struct value *table_find (struct table *, const char *);
 
+void table_debug_print (struct table *);
+
 #endif // TABLE_H
 

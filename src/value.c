@@ -133,6 +133,12 @@ void
 value_release (struct value *value)
 {
   value->references--;
+  value_drop (value);
+}
+
+void
+value_drop (struct value *value)
+{
   if (value->references == 0)
     value_destroy (value);
 }
@@ -164,6 +170,17 @@ value_debug_print (struct value *value)
       printf ("%g", value->value.f);
       break;
     case VALUE_ARRAY:
+      {
+        printf ("[");
+        for (size_t i = 0; i < value->value.array->size; ++i)
+          {
+            value_debug_print (value->value.array->storage[i]);
+            if (i < value->value.array->size - 1)
+              printf (",");
+          }
+
+        printf ("]");
+      }
       /* LATER. */
       break;
     default:
