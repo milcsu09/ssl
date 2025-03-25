@@ -22,6 +22,8 @@ native_copy (struct native *native)
 
   copy = native_create (native->function);
 
+  array_destroy (copy->arguments);
+
   copy->arguments = array_copy (native->arguments);
 
   return copy;
@@ -32,5 +34,11 @@ native_destroy (struct native *native)
 {
   array_destroy (native->arguments);
   free (native);
+}
+
+int
+native_match_argument (struct native *native, int i, enum value_type type)
+{
+  return value_match (native->arguments->storage[i], type);
 }
 

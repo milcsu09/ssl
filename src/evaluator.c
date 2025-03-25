@@ -3,6 +3,7 @@
 #include "evaluator.h"
 #include "function.h"
 #include "string.h"
+#include "native.h"
 #include "table.h"
 #include "value.h"
 #include <stdio.h>
@@ -235,6 +236,38 @@ evaluate_function_invocation (struct ast *ast, struct table *table)
       table_destroy (f_table);
 
       // value_retain (result);
+      return result;
+    }
+
+  if (value_match (f, VALUE_NATIVE))
+    {
+      struct value *native_v = value_copy (f);
+      struct native *native = native_v->value.native;
+
+      struct value *argument = evaluate (ast->child->next, table);
+      if (value_match_error (argument))
+        {
+          value_destroy (f);
+          value_destroy (native_v);
+          return argument;
+        }
+
+      native_c_function_t c_function = native->function;
+      struct array *arguments = array_push_back (native->arguments, argument);
+
+      array_destroy (native->arguments);
+      native->arguments = arguments;
+
+      struct value *result = c_function (native_v);
+
+      /* In case the native function didn't return the same pointer (itself), 
+       * we assume that the native got enough arguments! */
+      if (result != native_v)
+        value_destroy (native_v);
+
+      value_destroy (argument);
+      value_destroy (f);
+
       return result;
     }
 

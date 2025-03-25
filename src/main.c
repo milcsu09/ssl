@@ -1,11 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "evaluator.h"
-#include "table.h"
 #include "arena.h"
+#include "array.h"
 #include "ast.h"
+#include "error.h"
+#include "evaluator.h"
+// #include "function.h"
+#include "lexer.h"
+#include "native.h"
 #include "parser.h"
+#include "standard.h"
+#include "string.h"
+#include "table.h"
+// #include "thunk.h"
+#include "token.h"
 #include "value.h"
 
 static char *
@@ -24,12 +33,21 @@ read_file (const char *filename)
 
   char *buffer = (char *)malloc (file_size + 1);
 
-  size_t bytes_read = fread (buffer, 1, file_size, file);
+  (void)fread (buffer, 1, file_size, file);
 
   buffer[file_size] = '\0';
 
   fclose (file);
   return buffer;
+}
+
+void
+table_append_native (struct table *table, native_c_function_t f, const char *k)
+{
+  struct value *value = value_create (VALUE_NATIVE, (struct location) { 0 });
+  value->value.native = native_create (f);
+  table_append (table, table_entry_create (k, value));
+  value_destroy (value);
 }
 
 int
@@ -62,10 +80,19 @@ main (int argc, char *argv[])
       free (src);
       exit (1);
     }
-  else
-    ast_debug_print (ast, 0);
+  // else
+  //   ast_debug_print (ast, 0);
 
   struct table *gst = table_create (4, NULL);
+
+  table_append_native (gst, standard_f_f, "_f");
+  table_append_native (gst, standard_f_print, "print");
+  table_append_native (gst, standard_f_add, "+");
+  table_append_native (gst, standard_f_sub, "-");
+  table_append_native (gst, standard_f_mul, "*");
+  table_append_native (gst, standard_f_div, "/");
+  table_append_native (gst, standard_f_mod, "%");
+
   struct value *value = evaluate (ast, gst);
 
   if (value_match_error (value))
@@ -83,6 +110,7 @@ main (int argc, char *argv[])
       exit (1);
     }
 
+  printf ("-------------------\n");
   printf ("evaluated type:  %s\n",
           value_type_string (value->type));
   printf ("evaluated value: ");
@@ -92,66 +120,12 @@ main (int argc, char *argv[])
   arena_destroy (&lexer_arena);
   arena_destroy (&parser_arena);
 
-  for (size_t i = 0; i < gst->size; ++i)
-    {
-      printf ("%s=", gst->storage[i]->key);
-      value_debug_print (gst->storage[i]->value);
-      printf ("\n");
-    }
+  printf ("-------------------\n");
+  table_debug_print (gst);
 
   free (src);
   value_destroy (value);
   table_destroy (gst);
-
-  /*struct parser parser = parser_create ("a + b +", "__tmp__");
-  struct ast *ast = parser_parse (&parser);
-
-  if (ast_match_error (ast))
-    {
-      location_debug_print (ast->location);
-      printf (": fatal-error: %s\n", ast->value.error.message);
-      ast_destroy (ast);
-      // parser_cleanup (&parser);
-      exit (1);
-    }
-
-  ast_debug_print (ast, 0);
-  ast_destroy (ast);
-  */
-
-  /*
-  struct lexer lexer = lexer_create ("a + b", "<>", NULL);
-  struct token token;
-
-  while (1)
-    {
-      token = lexer_next (&lexer);
-      if (token.type == TOKEN_NOTHING || token.type == TOKEN_ERROR)
-        break;
-
-      printf ("'%s'", token_type_string (token.type));
-      switch (token.type)
-        {
-        case TOKEN_IDENTIFIER:
-          printf (": `%s`", token.value.s);
-          break;
-        case TOKEN_STRING:
-          printf (": \"%s\"", token.value.s);
-          break;
-        case TOKEN_INTEGER:
-          printf (": %ld", token.value.i);
-          break;
-        case TOKEN_FLOAT:
-          printf (": %lf", token.value.f);
-          break;
-        default:
-          break;
-        }
-
-      token_destroy (token);
-      printf ("\n");
-    }
-  */
 
   return 0;
 }

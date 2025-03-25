@@ -155,6 +155,11 @@ value_match_error (struct value *value)
   return value_match (value, VALUE_ERROR);
 }
 
+// struct value *
+// value_invoke (struct value *f, struct value *argument)
+// {
+// }
+
 void
 value_debug_print (struct value *value)
 {
