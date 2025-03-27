@@ -88,11 +88,17 @@ main (int argc, char *argv[])
   table_append_native (gst, standard_f_f, "_f");
 
   table_append_native (gst, standard_f_print, "print");
+  table_append_native (gst, standard_f_printl, "printl");
+
   table_append_native (gst, standard_f_add, "+");
   table_append_native (gst, standard_f_sub, "-");
   table_append_native (gst, standard_f_mul, "*");
   table_append_native (gst, standard_f_div, "/");
   table_append_native (gst, standard_f_mod, "%");
+  table_append_native (gst, standard_f_range, "range");
+  table_append_native (gst, standard_f_map, "map");
+  table_append_native (gst, standard_f_map_, "map_");
+  table_append_native (gst, standard_f_push_front, ">>");
 
   table_append_native (gst, standard_f_error, "error");
 
@@ -113,12 +119,12 @@ main (int argc, char *argv[])
       exit (1);
     }
 
-  printf ("----------------\n");
-  printf ("evaluated type:  %s\n",
-          value_type_string (value->type));
-  printf ("evaluated value: ");
-  value_debug_print (value);
-  printf ("\n");
+  // printf ("----------------\n");
+  // printf ("evaluated type:  %s\n",
+  //         value_type_string (value->type));
+  // printf ("evaluated value: ");
+  // value_debug_print (value);
+  // printf ("\n");
 
   arena_destroy (&lexer_arena);
   arena_destroy (&parser_arena);

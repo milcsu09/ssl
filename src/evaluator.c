@@ -18,7 +18,7 @@ struct value *evaluate_array (struct ast *, struct table *);
 struct value *evaluate_variable_assignment (struct ast *, struct table *);
 struct value *evaluate_function_definition (struct ast *, struct table *);
 struct value *evaluate_function_invocation (struct ast *, struct table *);
-// struct value *evaluate_turnary (struct ast *, struct table *);
+struct value *evaluate_turnary (struct ast *, struct table *);
 // struct value *evaluate_where (struct ast *, struct table *);
 struct value *evaluate_program (struct ast *, struct table *);
 
@@ -46,8 +46,8 @@ evaluate (struct ast *ast, struct table *table)
       return evaluate_function_definition (ast, table);
     case AST_FUNCTION_INVOCATION:
       return evaluate_function_invocation (ast, table);
-    // case AST_TURNARY:
-    //   break;
+    case AST_TURNARY:
+      return evaluate_turnary (ast, table);
     // case AST_WHERE:
     //   break;
     case AST_PROGRAM:
@@ -210,6 +210,7 @@ evaluate_function_invocation (struct ast *ast, struct table *table)
       struct function *function = f->value.function;
 
       struct table *f_table = table_copy (function->table);
+      f_table->parent = table;
 
       struct value *argument = evaluate (ast->child->next, table);
       if (value_match_error (argument))
@@ -280,6 +281,28 @@ evaluate_function_invocation (struct ast *ast, struct table *table)
   value_destroy (f);
 
   return value_create_e (e, ast->location);
+}
+
+struct value *
+evaluate_turnary (struct ast *ast, struct table *table)
+{
+  struct value *condition;
+  struct value *expression;
+
+  condition = evaluate (ast->child, table);
+  if (value_match_error (condition))
+    return condition;
+
+  if (value_bool (condition))
+    expression = evaluate (ast->child->next, table);
+  else if (ast->child->next->next != NULL)
+    expression = evaluate (ast->child->next->next, table);
+  else
+    expression = value_create (VALUE_NOTHING, ast->location);
+
+  value_destroy (condition);
+
+  return expression;
 }
 
 struct value *

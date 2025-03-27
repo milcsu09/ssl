@@ -31,8 +31,8 @@ enum token_type
   TOKEN_EQUAL,
   TOKEN_ARROW,
   TOKEN_COMMA,
-  // TOKEN_PIPE,
-  // TOKEN_QUESTION,
+  TOKEN_PIPE,
+  TOKEN_QUESTION,
 };
 
 struct token

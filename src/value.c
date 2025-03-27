@@ -160,6 +160,29 @@ value_match_error (struct value *value)
 // {
 // }
 
+int
+value_bool (struct value *value)
+{
+  switch (value->type)
+    {
+    case VALUE_NOTHING:
+    case VALUE_ERROR:
+      return 0;
+    case VALUE_STRING:
+      return *value->value.s != '\0';
+    case VALUE_INTEGER:
+      return value->value.i != 0;
+    case VALUE_FLOAT:
+      return value->value.f != 0;
+    case VALUE_ARRAY:
+      return value->value.array->size != 0;
+    case VALUE_THUNK:
+    case VALUE_FUNCTION:
+    case VALUE_NATIVE:
+      return 1;
+    }
+}
+
 void
 value_debug_print (struct value *value)
 {
@@ -186,7 +209,6 @@ value_debug_print (struct value *value)
 
         printf ("]");
       }
-      /* LATER. */
       break;
     default:
       printf ("%s", value_type_string (value->type));
