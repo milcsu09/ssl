@@ -95,10 +95,18 @@ main (int argc, char *argv[])
   table_append_native (gst, standard_f_mul, "*");
   table_append_native (gst, standard_f_div, "/");
   table_append_native (gst, standard_f_mod, "%");
+
+  table_append_native (gst, standard_f_eq, "==");
+  table_append_native (gst, standard_f_neq, "!=");
+
+  table_append_native (gst, standard_f_head, "head");
+  table_append_native (gst, standard_f_tail, "tail");
+  table_append_native (gst, standard_f_push_front, ">>");
+
   table_append_native (gst, standard_f_range, "range");
+
   table_append_native (gst, standard_f_map, "map");
   table_append_native (gst, standard_f_map_, "map_");
-  table_append_native (gst, standard_f_push_front, ">>");
 
   table_append_native (gst, standard_f_error, "error");
 

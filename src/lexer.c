@@ -257,6 +257,8 @@ lexer_next (struct lexer *lexer)
     case '}':
       return lexer_advance_token (lexer, TOKEN_RBRACE);
     case '=':
+      if (lexer_match (lexer, "=="))
+        return lexer_advance_identifier_n (lexer, 2);
       return lexer_advance_token (lexer, TOKEN_EQUAL);
     case ',':
       return lexer_advance_token (lexer, TOKEN_COMMA);
@@ -272,16 +274,22 @@ lexer_next (struct lexer *lexer)
       return lexer_advance_identifier_n (lexer, 1);
     case '%':
       return lexer_advance_identifier_n (lexer, 1);
+    case '|':
+      return lexer_advance_token (lexer, TOKEN_PIPE);
+    case '?':
+      return lexer_advance_token (lexer, TOKEN_QUESTION);
+    case '!':
+      if (lexer_match (lexer, "!="))
+        return lexer_advance_identifier_n (lexer, 2);
+      break;
     case '$':
+      return lexer_advance_identifier_n (lexer, 1);
+    case '.':
       return lexer_advance_identifier_n (lexer, 1);
     case '>':
       if (lexer_match (lexer, ">>"))
         return lexer_advance_identifier_n (lexer, 2);
       break;
-    case '|':
-      return lexer_advance_token (lexer, TOKEN_PIPE);
-    case '?':
-      return lexer_advance_token (lexer, TOKEN_QUESTION);
     case '\0':
       return token_create (TOKEN_NOTHING, lexer->location);
     }

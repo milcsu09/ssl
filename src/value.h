@@ -75,7 +75,9 @@ int value_match (struct value *, enum value_type);
 int value_match_error (struct value *);
 
 // struct value *value_invoke (struct value *, struct value *);
+
 int value_bool (struct value *);
+int value_eq (struct value *, struct value *);
 
 
 void value_debug_print (struct value *);

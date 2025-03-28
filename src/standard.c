@@ -205,6 +205,85 @@ standard_f_mod (struct value *curry)
 }
 
 struct value *
+standard_f_eq (struct value *curry)
+{
+  struct native *native = curry->value.native;
+  if (native->arguments->size < 2)
+    return curry;
+
+  struct value *result;
+
+  result = value_create (VALUE_INTEGER, curry->location);
+
+  struct value *a = native->arguments->storage[0];
+  struct value *b = native->arguments->storage[1];
+  result->value.i = value_eq (a, b);
+
+  return result;
+}
+
+struct value *
+standard_f_neq (struct value *curry)
+{
+  struct native *native = curry->value.native;
+  if (native->arguments->size < 2)
+    return curry;
+
+  struct value *result;
+
+  result = value_create (VALUE_INTEGER, curry->location);
+
+  struct value *a = native->arguments->storage[0];
+  struct value *b = native->arguments->storage[1];
+  result->value.i = !value_eq (a, b);
+
+  return result;
+}
+
+struct value *
+standard_f_head (struct value *curry)
+{
+  struct native *native = curry->value.native;
+  /* single-argument */
+
+  return array_head (native->arguments->storage[0]->value.array);
+}
+
+struct value *
+standard_f_tail (struct value *curry)
+{
+  struct native *native = curry->value.native;
+  /* single-argument */
+
+  struct value *value;
+
+  value = value_create (VALUE_ARRAY, curry->location);
+  value->value.array = array_tail (native->arguments->storage[0]->value.array);
+
+  return value;
+}
+
+struct value *
+standard_f_push_front (struct value *curry)
+{
+  struct native *native = curry->value.native;
+  if (native->arguments->size < 2)
+    return curry;
+
+  struct value *value = native->arguments->storage[0];
+  struct array *array = native->arguments->storage[1]->value.array;
+  struct array *new = array_push_front (array, value);
+
+  struct value *result;
+
+  result = value_create (VALUE_ARRAY, curry->location);
+
+  result->value.array = new;
+
+  return result;
+}
+
+struct value *
 standard_f_range (struct value *curry)
 {
   struct native *native = curry->value.native;
@@ -299,26 +378,6 @@ standard_f_map_ (struct value *curry)
     }
 
   return value_create (VALUE_NOTHING, curry->location);
-}
-
-struct value *
-standard_f_push_front (struct value *curry)
-{
-  struct native *native = curry->value.native;
-  if (native->arguments->size < 2)
-    return curry;
-
-  struct value *value = native->arguments->storage[0];
-  struct array *array = native->arguments->storage[1]->value.array;
-  struct array *new = array_push_front (array, value);
-
-  struct value *result;
-
-  result = value_create (VALUE_ARRAY, curry->location);
-
-  result->value.array = new;
-
-  return result;
 }
 
 struct value *

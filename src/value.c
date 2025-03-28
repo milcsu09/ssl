@@ -6,6 +6,7 @@
 #include "value.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 static const char *const VALUE_TYPE_STRING[] = {
   "nothing",
@@ -181,6 +182,36 @@ value_bool (struct value *value)
     case VALUE_NATIVE:
       return 1;
     }
+
+  return 0;
+}
+
+int
+value_eq (struct value *a, struct value *b)
+{
+  if (a->type != b->type)
+    return 0;
+
+  switch (a->type)
+    {
+    case VALUE_NOTHING:
+    case VALUE_ERROR:
+      return 1;
+    case VALUE_STRING:
+      return strcmp (a->value.s, b->value.s) == 0;
+    case VALUE_INTEGER:
+      return a->value.i == b->value.i;
+    case VALUE_FLOAT:
+      return a->value.f == b->value.f;
+    case VALUE_ARRAY:
+      return array_eq (a->value.array, b->value.array);
+    case VALUE_THUNK:
+    case VALUE_FUNCTION:
+    case VALUE_NATIVE:
+      return 0;
+    }
+
+  return 0;
 }
 
 void
