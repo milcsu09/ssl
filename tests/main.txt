@@ -4,8 +4,17 @@ $ = f -> x -> f x;
 
 otherwise = 1;
 
-even = n -> n % 2 == 0;
-odd  = n -> n % 2 == 1;
+head = xs ->
+  | xs == []  ? error "head xs :: xs = []"
+  | otherwise ? __head xs;
+
+tail = xs ->
+  | xs == []  ? error "tail xs :: xs = []"
+  | otherwise ? __tail xs;
+
+length = xs ->
+  | xs == []  ? 0
+  | otherwise ? 1 + (length $ tail xs);
 
 sum = xs ->
   | xs == []  ? 0
@@ -15,6 +24,8 @@ filter = f -> xs ->
   | xs == []    ? []
   | f (head xs) ? (head xs) >> filter f (tail xs)
   | otherwise   ? filter f (tail xs);
+
+odd = n -> n % 2 == 1;
 
 sumOddSquares = sum . map (x -> x * x) . filter odd;
 

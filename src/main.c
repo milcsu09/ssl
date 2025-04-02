@@ -99,8 +99,8 @@ main (int argc, char *argv[])
   table_append_native (gst, standard_f_eq, "==");
   table_append_native (gst, standard_f_neq, "!=");
 
-  table_append_native (gst, standard_f_head, "head");
-  table_append_native (gst, standard_f_tail, "tail");
+  table_append_native (gst, standard_f_head, "__head");
+  table_append_native (gst, standard_f_tail, "__tail");
   table_append_native (gst, standard_f_push_front, ">>");
 
   table_append_native (gst, standard_f_range, "range");
