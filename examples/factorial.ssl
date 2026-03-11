@@ -1,0 +1,8 @@
+
+factorial = n.
+  | n = n * factorial (n - 1)
+  | 1 = 1
+  ;
+
+printlf "_" [factorial 20];
+

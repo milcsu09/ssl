@@ -1,0 +1,17 @@
+
+fizzbuzz = n. m.
+  | n < m =
+    {
+      match [n % 3, n % 5]
+      | [0, 0] = printl "fizzbuzz"
+      | [0, _] = printl "fizz"
+      | [_, 0] = printl "buzz"
+      | _      = printl n
+      ;
+
+      fizzbuzz (n + 1) m;
+    }
+  ;
+
+fizzbuzz 0 100;
+

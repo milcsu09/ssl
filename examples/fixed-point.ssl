@@ -1,0 +1,12 @@
+
+z = f.
+    (x. f (v. (x x) v))
+    (x. f (v. (x x) v));
+
+factorial =
+  z (f. n.
+        | n = n * f (n - 1)
+        | 1 = 1);
+
+printl (factorial 10);
+
