@@ -153,9 +153,9 @@ builtin_div (struct state *state, struct value **as)
     }
 
   if (p.is_float)
-    return value_box_f (state, p.a * p.b);
+    return value_box_f (state, p.a / p.b);
 
-  return value_box_i (state, (s64)p.a * (s64)p.b);
+  return value_box_i (state, (s64)p.a / (s64)p.b);
 }
 
 

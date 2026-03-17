@@ -5,7 +5,6 @@ syntax match  sslComment  /#.*/
 syntax match  sslNumber   /\v\d+/
 syntax match  sslEscape /\\./ contained
 syntax region sslString start=/"/ skip=/\\./ end=/"/ contains=sslEscape
-syntax region sslChar   start=/'/ skip=/\\./ end=/'/ contains=sslEscape
 
 " Keywords, constants
 syntax keyword sslKeyword  match
